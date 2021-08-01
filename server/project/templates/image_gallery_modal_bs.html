@@ -1,0 +1,44 @@
+<div class="modal fade" id="image_gallery" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title text-dark">Image Storage</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+            </div>
+            <div class="modal-body pt-0" style="overflow-x: hidden;">
+                <div class="container-fluid">
+                    <div class="row pb-2 sticky-top mr-0 pr-0 bg-white pt-2">
+
+                        <div id="selected_note" class="text-muted pl-3 align-self-center"></div>
+
+                        <div class="ml-auto">
+                            <buttton id="unselect_img_btn" type="button" class="btn btn-primary btn-large mr-2"
+                                        style="display: none;">Unselect all</buttton>
+                                        
+                            <buttton id="select_to_post_img_btn" type="button"
+                                     class="btn btn-primary btn-large mr-2">Add to post</buttton>
+
+                            <buttton id="select_as_main_img_btn" type="button" 
+                                     class="btn btn-primary btn-large">Select as main</buttton>
+                        </div>
+
+                    </div>
+
+                    <div id="gallery_grid" class="row"></div>
+
+                    <div class="btn-group" role="group">
+                        <button id="gallery_prev" class="btn btn-light" disabled=true>Prev</button>
+                        <button id="gallery_next" class="btn btn-light" disabled=true>Next</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

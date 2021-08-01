@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %} Flask Mini-CMS | Dashboard {% endblock %}
+
+{% block content %}
+    <h1 class="title">
+        Flask Mini-CMS
+    </h1>
+    <h2 class="subtitle">
+        Lorem ipsum dolor!
+    </h2>
+
+    <div id="dashboard" class="columns">
+        <div class="column is-one-third-desktop is-full-tablet">
+            <div class="box h-100">
+                <div class="title has-text-dark is-size-4">
+                    Last posts
+                    <a href="{{ url_for('posts.new_post') }}" class="v-align-middle">
+                        <i data-eva="plus-outline" data-eva-fill="#00d1b2" data-eva-animation="flip"></i>
+                    </a>
+                </div>
+                {% for i in posts %}
+                    <div class="card my-2">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                {{ i.title }}
+                            </p>
+                            <a href="{{ url_for('posts.edit_post', id=i.id) }}" class="pr-4 is-align-self-center">
+                                <i data-eva="edit-outline" data-eva-fill="#36f" data-eva-animation="flip"></i>
+                            </a>
+                        </header>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="column is-one-third-desktop is-full-tablet">
+            <div class="box h-100">
+                <div class="title has-text-dark is-size-4">
+                    Last categories
+                    <a href="{{ url_for('main.categories') }}" class="v-align-middle">
+                        <i data-eva="plus-outline" data-eva-fill="#00d1b2" data-eva-animation="flip"></i>
+                    </a>
+                </div>
+                {% for i in categories %}
+                    <div class="card my-2">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                {{ i.category_name }}
+                            </p>
+                            <a href="/newpost?cat={{ i.id }}" class="pr-4 is-align-self-center">
+                                <i data-eva="file-add-outline" data-eva-fill="#36f" data-eva-animation="flip"></i>
+                            </a>
+                        </header>
+                    </div>
+                {% endfor %}                
+            </div>    
+        </div>
+
+        <div class="column is-one-third-desktop is-full-tablet">
+            <div class="box h-100">
+                <div class="title has-text-dark is-size-4">Statistic</div>
+                {% if posts_cnt != 0 %}
+                    <div class="card my-2">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                Created posts
+                            </p>
+                            <div class="pr-4 is-align-self-center">
+                                {{ posts_cnt }}
+                            </div>
+                        </header>
+                    </div>
+                {% endif %}
+                
+                {% if cats_cnt != 0 %}
+                    <div class="card my-2">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                Created categories
+                            </p>
+                            <div class="pr-4 is-align-self-center">
+                                {{ cats_cnt }}
+                            </div>
+                        </header>
+                    </div>
+                {% endif %}
+                
+                {% if posts_last_week %}
+                    <div class="card my-2">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                Posts for last week
+                            </p>
+                            <div class="pr-4 is-align-self-center">
+                                {{ posts_last_week }}
+                            </div>
+                        </header>
+                    </div>
+                {% endif %}
+
+                {% if most_cat_row %}
+                    <p class="subtitle has-text-dark mb-2">Most used category</p>
+                    <div class="card my-2">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                {{ most_cat_row.name }}
+                            </p>
+                            <div class="pr-4 is-align-self-center">
+                                {{ most_cat_row.cnt }}
+                            </div>
+                        </header>
+                    </div>
+                {% endif %}
+
+                {% if most_tag_row.cnt %}
+                    <p class="subtitle has-text-dark mb-2">Most used tag</p>
+                    <div class="card my-2">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                {{ most_tag_row.name }}
+                            </p>
+                            <div class="pr-4 is-align-self-center">
+                                {{ most_tag_row.cnt }}
+                            </div>
+                        </header>
+                    </div>
+                {% endif %}
+
+            </div>    
+        </div>
+    </div>
+    
+{% endblock %}

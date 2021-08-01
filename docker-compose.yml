@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  flask_mini_cms:
+    build:
+      dockerfile: Dockerfile
+      context: ./server
+    container_name: flask-mini-cms
+    restart: unless-stopped
+    volumes:
+      - ./server/project:/code/server/project
+    ports:
+      - 50550:5000

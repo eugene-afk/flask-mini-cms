@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %} Flask Mini-CMS | Users {% endblock %}
+
+{% block content %}
+<div class="column is-8 is-offset-2">
+    <h3 class="title">Users</h3>
+    <div class="box">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="notification is-{{ messages[1] }}">
+                    <button class="delete"></button>
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="mb-2">
+            <form action="/users" method="get" autocomplete="off">
+                <div class="field is-flex">
+                    <p class="control has-icons-left" style="flex: 1 1 0%">
+                        <input class="input" type="text" name="f" id="f" autofocus="true">
+                        <span class="icon is-small is-left">
+                            <i data-eva="search-outline" data-eva-fill="#222" data-eva-animation="flip"></i>
+                        </span>
+                    </p>
+                    <button class="button is-info ml-2">Search</button>
+                </div>
+            </form>
+        </div>        
+
+        {% if search_txt %}
+            <div class="has-text-left mb-2">Searching: <strong>{{ search_txt }}</strong></div>
+        {% endif %}
+
+        <div class="table-wrapper">
+            <table class="table is-striped is-fullwidth">
+                <thead>
+                    <th><abbr title="Identificator">ID</abbr></th>
+                    <th><abbr title="Name">Name</abbr></th>
+                    <th class="has-text-right"><abbr title="Actions">
+                        <a href="{{ url_for('users.adduser') }}" class="mb-2 ml-auto">
+                            <button class="button is-primary is-small">Add</button>
+                        </a>
+                    </abbr></th>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">
+                            <div class="buttons has-addons is-centered">
+                                <a href="{{ url_for('main.users', page=collection.prev_num) }}" class="button"
+                                {% if collection.page == 1 %}disabled{% endif %}>
+                                    Prev
+                                </a>
+                                <a href="{{ url_for('main.users', page=collection.next_num) }}" class="button"
+                                {% if collection.page == collection.pages or collection.pages == 0 %}disabled{% endif %}>
+                                    Next
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for i in collection.items %}
+                        <tr>
+                            <td class="v-align-middle">{{ i.id }}</td>
+                            <td class="v-align-middle">{{ i.shorter_name }}</td>
+                            <td class="has-text-right v-align-middle">
+                                <a href="{{ url_for('users.duser', id=i.id) }}">
+                                    <i data-eva="trash-outline" data-eva-fill="#f14668" data-eva-animation="flip"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/users.js') }}"></script>
+{% endblock %}

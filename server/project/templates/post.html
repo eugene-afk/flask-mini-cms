@@ -1,0 +1,130 @@
+<div id="postView">
+{% extends "base.html" %}
+
+{% block title %} Flask Mini-CMS | {% if post.title != '' %}{{post.title}} {% else %} New Post {% endif %} {% endblock %}
+
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/summernote-lite.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/summernote-bs4.min.css') }}">
+
+    <style>
+        body{
+            padding-right: 0px !important;
+        }
+        .navbar a:hover{
+            text-decoration: none;
+        }
+        .text-muted{
+            font-weight: 300;
+        }
+        .navbar{
+            padding: 0;
+        }
+        .container{
+            padding: 0;
+            align-items: stretch !important;
+        }
+        .navbar-item{
+            padding: .5rem .75rem;
+        }
+    </style>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-{{ messages[1] }}">
+                <button class="delete"></button>
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form action="/savepost/{{ post.id }}" method="post" enctype="multipart/form-data" autocomplete="off">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div id="edit_post" class="row">
+            <div class="col-xl-9 col-lg-12 mt-3">
+                <div class="box">
+
+                    <div class="field">
+                        <div class="control">
+                            <input id="title" required minlength="3" class="input is-medium is-fullwidth" type="text"
+                                   name="title" value="{{ post.title }}"
+                                   placeholder="Post Title..." autofocus>
+                        </div>
+                    </div>
+
+                    <textarea name="editordata" id="summernote">{{ post.full }}</textarea>
+
+                    <div class="text-muted mb-1 mt-3 has-text-left">
+                        Type here short description. Or leave this area empty to use first paragraph.
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <textarea id="float_textarea" class="form-control w-100" name="short_desc" style="height: 100px;" 
+                                  placeholder="Short Description" style="resize: none;">{{ post.shortDesc }}</textarea>
+                    </div> 
+
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-12 mt-3">
+                <div class="box h-100">
+                    <div class="text-muted mb-2 has-text-left">Owner: <strong>{{ owner_name }}</strong></div>
+                    <div class="text-muted mb-2 has-text-left">Published: <strong>{{ dateAdd }}</strong></div>
+                    <div class="text-muted mb-2 has-text-left">Last updated: <strong>{{ dateUpdate }}</strong></div>
+
+                    <div class="text-muted my-1 has-text-left">Select publish state:</div>
+                    <select class="custom-select mb-3" name="publish_select">
+                        <option {% if not post.published %}selected{% endif %} value="draft">Draft</option>
+                        <option {% if post.published %}selected{% endif %} value="publish">Publish</option>
+                    </select>
+                    
+                    <div class="text-muted my-1 has-text-left">Select category:</div>
+                    <select class="custom-select mb-3" name="category_select">
+                        {% for i in categories %}
+                            <option {% if i.id == post.category_id or category != 0 and category == i.id %}selected{% endif %}
+                             value="{{ i.id }}">{{ i.category_name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div class="text-muted my-1 has-text-left">Add tag from already saved:</div>
+                    <input class="form-control mb-2" type="text" list="tags_list" name="selected_tag" 
+                           id="selected_tag"
+                           placeholder="Start typing for search...">
+                    <datalist id="tags_list">
+                        {% for i in tags %}
+                            <option>{{ i.tag_name }}</option>
+                        {% endfor %}
+                    </datalist>
+
+                    <div class="text-muted my-1 has-text-left">Tags separated by comma:</div>
+                    <div class="form-floating mb-3">
+                        <textarea id="tags" class="form-control w-100" name="tags" style="height: 200px;" 
+                                  placeholder="Type new tag here...">{{ tagsString }}</textarea>
+                    </div>
+
+                    <div class="text-muted my-1 has-text-left">Upload or select main image:</div>
+                    <input type="text" id="storage_img" name="storage_img" style="display: none;" value="">
+                    <img id="selected_image" src="{{ url_for('static', filename='img/media/' + post.imgMain if post.imgMain != 'default.jpg' else 'img/' + post.imgMain) }}"
+                         alt="Default image" class="img-fluid">
+                    <input id="img_file" type="file" name="img" style="display: none;">
+
+                    <div class="buttons is-flex is-justify-content-left mt-2">
+                        <input id="img_file_trigger" type="button" class="button is-info is-small" value="Browse...">
+                        <button id="img_gallery_btn" type="button" data-toggle="modal" data-target="#image_gallery"
+                                class="button is-info is-medium">Choose From Storage</button>
+                    </div>
+
+                    <button class="button is-success is-medium is-fullwidth my-2">Save</button>
+
+                </div>
+            </div>
+        </div>
+    </form>
+    {% include "image_gallery_modal_bs.html" %}
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/summernote-lite.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/summernote-bs4.min.js') }}"></script>
+    <script id="post_js" data-csrf="{{csrf_token()}}" src="{{ url_for('static', filename='js/post.js') }}"></script>
+{% endblock %}
+</div>

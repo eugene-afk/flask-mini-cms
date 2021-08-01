@@ -1,0 +1,78 @@
+body{
+    overflow-x: hidden;
+}
+
+.h-100{
+    height: 100%;
+}
+
+.v-align-middle{
+    vertical-align: middle !important;
+}
+
+.pointer{
+    cursor: pointer;
+}
+
+.img-selected{
+    border: 4px solid #007bff;
+    border-radius: .25rem;
+}
+
+.notification{
+    word-wrap: break-word;
+}
+
+.table-wrapper{
+    overflow-x: auto;
+}
+
+.navbar{
+    font-size: 1.25rem;
+}
+
+.navbar-dropdown a:hover{
+    color: #fff !important;
+}
+
+#dashboard .card-header-title{
+    word-break: break-all;
+}
+
+@media screen and (max-width: 1024px){
+    .navbar-dropdown a{
+        color: #fff !important;
+    }
+    #postView .navbar-brand, #navbarMenuHeroA{
+        width: 100%;
+    }
+    
+    #postView .navbar-brand{
+        display: flex;
+    }
+}
+
+@media screen and (max-width: 596px){
+    .note-editor{
+        overflow: hidden !important;
+    }
+    
+    .note-toolbar{
+        min-width: 100% !important;
+        overflow-x: scroll !important;
+        white-space: nowrap;
+    }
+    
+    .note-dropdown-menu{
+        position: fixed !important;
+        top: 14rem !important;
+        left: 11rem !important;
+    }
+}
+
+abbr{
+    text-decoration: none;
+}
+
+
+

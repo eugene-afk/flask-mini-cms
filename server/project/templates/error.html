@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %} Flask Mini-CMS | {{ title }} {% endblock %}
+
+{% block content %}
+    <div class="column">
+        <h3 class="title">{{ title }}</h3>
+        <h4 class="subtitle">{{ msg }}</h4>
+    </div>
+{% endblock %}

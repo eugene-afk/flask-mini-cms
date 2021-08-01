@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %} Flask Mini-CMS | Images {% endblock %}
+
+{% block content %}
+    <div class="column is-8 is-offset-2">
+        <h3 class="title">Images</h3>
+        <div class="box">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="notification is-{{ messages[1] }}">
+                        <button class="delete"></button>
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="table-wrapper">
+                <table class="table is-striped is-fullwidth is-hoverable">
+                    <thead>
+                        <th><abbr title="Image">Image</abbr></th>
+                        <th><abbr title="Name">Name</abbr></th>
+                        <th class="has-text-right"><abbr title="Actions">
+                        <button id="add_img_btn" class="button is-primary is-small">Add</button>
+                        </abbr></th>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3">
+                                <div class="buttons has-addons is-centered">
+                                    <a href="{{ url_for('main.categories', page=collection.prev_num) }}" class="button"
+                                    {% if collection.page == 1 %}disabled{% endif %}>
+                                        Prev
+                                    </a>
+                                    <a href="{{ url_for('main.categories', page=collection.next_num) }}" class="button"
+                                    {% if collection.page == collection.pages or collection.pages == 0 %}disabled{% endif %}>
+                                        Next
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                    <img id="preview_image" src="" class="img-fluid" style="max-height: 20rem;">
+                    
+                        <form action="/saveimgf" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div id="add_img_form" class="field" style="display: none;">
+                                <div class="control">
+                                    <input id="img_file" type="file" name="img">
+                                    <button class="button is-block is-info is-small is-fullwidth mt-2">Upload</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    <tbody>
+                        {% for i in collection.items %}
+                            <tr>
+                                <td class="v-align-middle">
+                                    <a href="{{ url_for('static', filename='img/media/'+i.media_name) }}" target="_blank">
+                                        <img height="88px" width="88px" style="object-fit: cover;"
+                                        src="{{ url_for('static', filename='img/media/'+i.media_name) }}">
+                                    </a>
+                                </td>
+                                <td class="v-align-middle">{{ i.media_name }}</td>
+                                <td class="has-text-right v-align-middle">
+                                    <a href="{{ url_for('img.dimg', id=i.id) }}">
+                                        <i data-eva="trash-outline" data-eva-fill="#f14668" data-eva-animation="flip"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
+            
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/images.js') }}"></script>
+{% endblock %}
