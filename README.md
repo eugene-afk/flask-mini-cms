@@ -46,7 +46,7 @@ Go to `http://localhost:5000/init` and create your core user to work with system
 
 ## Todos
 In the future, this application can be expanded in a very large number of directions, which are inherent in cms. Also I have already used it several times as a template for other small solutions. Anyway, there are a few things I would add or improve:
-* **Auth login logic.** When I was developing this solution, it seemed like a good idea to redirect users to the profile page after a successful login. But now, I would like to redirect users where they were going, before the login page, this is the more correct way.
+* ~~**Auth login logic.** When I was developing this solution, it seemed like a good idea to redirect users to the profile page after a successful login. But now, I would like to redirect users where they were going, before the login page, this is the more correct way.~~
 * **Multi language system.** Since the application is mainly designed for working with a text blog, it would be nice to be able to work with several languages at once.
 * **Mobile menu.** Mobile menu is awful, definitely worth a makeover.
 * **Architecture.** When I started developing this application, it seemed to be slightly smaller than it turned out in the end, especially considering the possibility of further expansion, the application needs some revision of architectural decisions.

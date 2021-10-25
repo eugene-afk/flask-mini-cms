@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, Markup
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from .models import User
@@ -7,14 +7,13 @@ from datetime import datetime
 
 auth = Blueprint('auth', __name__)
 
-@auth.route('/login')
+@auth.route('/login',methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.profile'))
-    return render_template('login.html')
-
-@auth.route('/login',methods=['POST'])
-def login_post():
+    if request.method == 'GET':
+        if current_user.is_authenticated:
+            return redirect(url_for('main.profile'))
+        session['next'] = request.args.get("next")
+        return render_template('login.html')
     try:
         name = request.form.get('name')
         password = request.form.get('password')
@@ -25,10 +24,11 @@ def login_post():
         if not user or not check_password_hash(user.password, password):
             flash('Please check your credentials and try again.')
             flash('danger')
-            return redirect(url_for('auth.login'))
-
+            return render_template('login.html')
         login_user(user, remember=remember)
-        return redirect(url_for('main.profile'))
+        next = session['next']
+        session.pop('next', None)
+        return redirect(next or url_for('main.users'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** login_post msg: ' + str(ex))
         return redirect(url_for('errors.unknownerror'))
