@@ -41,27 +41,43 @@
 
     <form action="/savepost/{{ post.id }}" method="post" enctype="multipart/form-data" autocomplete="off">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="title_translation_id" value="{{ post.title_translation_id }}">
+        <input type="hidden" name="shortDesc_translation_id" value="{{ post.shortDesc_translation_id }}">
+        <input type="hidden" name="full_translation_id" value="{{ post.full_translation_id }}">
         <div id="edit_post" class="row">
             <div class="col-xl-9 col-lg-12 mt-3">
                 <div class="box">
 
                     <div class="field">
                         <div class="control">
-                            <input id="title" required minlength="3" class="input is-medium is-fullwidth" type="text"
+                            <input id="title" required minlength="3" class="input is-medium is-fullwidth have-translation-input" type="text"
                                    name="title" value="{{ post.title }}"
                                    placeholder="Post Title..." autofocus>
+                            {% for i in langs %}
+                                <input id="title_{{i.lang_code}}" minlength="3" class="input is-medium is-fullwidth have-translation-input" type="text"
+                                        name="title_{{i.lang_code}}" value="{{ title_translations[i.lang_code] }}"
+                                        placeholder="Post Title..." autofocus style="display:none;">
+                            {% endfor %}
                         </div>
                     </div>
 
                     <textarea name="editordata" id="summernote">{{ post.full }}</textarea>
+                    {% for i in langs %}
+                        <textarea name="editordata_{{i.lang_code}}" id="summernote_{{i.lang_code}}">{{ full_translations[i.lang_code] }}</textarea>
+                    {% endfor %}
 
                     <div class="text-muted mb-1 mt-3 has-text-left">
                         Type here short description. Or leave this area empty to use first paragraph.
                     </div>
 
                     <div class="form-floating mb-3">
-                        <textarea id="float_textarea" class="form-control w-100" name="short_desc" style="height: 100px;" 
-                                  placeholder="Short Description" style="resize: none;">{{ post.shortDesc }}</textarea>
+                        <textarea id="float_textarea" class="form-control w-100 have-translation-input" name="short_desc" 
+                                  placeholder="Short Description" style="resize: none;height: 100px;">{{ post.shortDesc }}</textarea>
+                        {% for i in langs %}
+                            <textarea id="float_textarea_{{i.lang_code}}" class="form-control w-100 have-translation-input" 
+                                        name="short_desc_{{i.lang_code}}" 
+                                        placeholder="Short Description" style="height: 100px;resize: none;display:none;">{{ desc_translations[i.lang_code] }}</textarea>
+                        {% endfor %}
                     </div> 
 
                 </div>
@@ -71,6 +87,14 @@
                     <div class="text-muted mb-2 has-text-left">Owner: <strong>{{ owner_name }}</strong></div>
                     <div class="text-muted mb-2 has-text-left">Published: <strong>{{ dateAdd }}</strong></div>
                     <div class="text-muted mb-2 has-text-left">Last updated: <strong>{{ dateUpdate }}</strong></div>
+
+                    <div class="text-muted my-1 has-text-left">Select language:</div>
+                    <select class="custom-select mb-3" id="language_select">
+                        <option selected value="en">English</option>
+                        {% for i in langs %}
+                            <option value="{{i.lang_code}}">{{i.lang_name}}</option>
+                        {% endfor %}
+                    </select>
 
                     <div class="text-muted my-1 has-text-left">Select publish state:</div>
                     <select class="custom-select mb-3" name="publish_select">
@@ -125,6 +149,6 @@
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/summernote-lite.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/summernote-bs4.min.js') }}"></script>
-    <script id="post_js" data-csrf="{{csrf_token()}}" src="{{ url_for('static', filename='js/post.js') }}"></script>
+    <script id="post_js" data-csrf="{{csrf_token()}}" langs="{{langs_json}}" src="{{ url_for('static', filename='js/post.js') }}"></script>
 {% endblock %}
 </div>

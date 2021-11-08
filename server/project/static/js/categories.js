@@ -1,3 +1,6 @@
+var langs = JSON.parse(document.currentScript.getAttribute('langs'))
+var csrf_token = document.currentScript.getAttribute("data-csrf");
+
 document.addEventListener('DOMContentLoaded', () => {
     var addCategoryButton = document.querySelector('#add_cat_btn');
     var addForm = document.querySelector('#add_cat_form');
@@ -19,11 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
     var editCategoryButtons = document.querySelectorAll('.edit_cat_btn');
     if(editCategoryButtons != null){
       for(var i = 0; i < editCategoryButtons.length; ++i){
-        editCategoryButtons[i].addEventListener('click', (e) => {
+        editCategoryButtons[i].addEventListener('click', async (e) => {
             if(window.getComputedStyle(addForm).display === 'block'){
                 HideAddForm(addForm, addCategoryButton);
             }
             var data = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.id.split('_');
+            var inputs = ''
+            for(var i = 0; i < langs.langs.length; ++i){
+                var translation = await getCategoryTranslation(data[2], langs.langs[i].lang_code)
+                inputs += `<input id="category_name_${langs.langs[i].lang_code}" class="input is-medium mb-2" type="text"
+                                name="category_name_${langs.langs[i].lang_code}"
+                                value="${translation}"
+                                placeholder="Type new category name (${langs.langs[i].lang_name})"
+                                autofocus="">`
+            }
             var form_html= '<form action="/ucat/' + data[0] + '" method="post" autocomplete="false">'+
                             '<div class="field">'+
                                 '<div class="control">'+
@@ -31,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                             'name="category_name"'+
                                             'value="'+ data[1] +'"'+
                                             'placeholder="Type new category name"'+
-                                            'autofocus="">'+
+                                            'autofocus="">'+ inputs +
                                         '<button class="button is-block is-info is-small is-fullwidth">Save</button>'+
                                 '</div>'+
                             '</div>'+
@@ -63,4 +75,31 @@ function FocusTop(){
     input.focus();
     input.selectionStart = input.selectinEnd = input.value.length;
     window.scrollTo(0, 0);
+}
+
+async function getCategoryTranslation(id, lang){
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings){
+        if(!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain){
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        }
+      }
+    });
+
+    var res = await $.ajax({
+      url: `/get_translation?lang=${lang}&id=${id}`,
+      cache: false,
+      contentType: false,
+      processData: false,
+      type: "GET",
+      success: function(data){
+            // console.log(data)
+            return data
+      },
+      error: function(data){
+        // console.log(data);
+        return ""
+      }
+    });
+    return res
 }

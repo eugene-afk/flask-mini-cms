@@ -1,11 +1,11 @@
-from flask import Blueprint, render_template, redirect, request, url_for, flash, Markup
+from flask import Blueprint, json, render_template, redirect, request, url_for, flash, Markup
 from flask_login import login_required, current_user
 from . import db, csrf
-from .models import User, Post, Category, Tag, PostTag
+from .models import Language, Translation, User, Post, Category, Tag, PostTag
 from datetime import datetime
 from bs4 import BeautifulSoup
 from .img import save_img
-import bleach
+import bleach, uuid
 
 posts = Blueprint('posts', __name__)
 
@@ -19,11 +19,26 @@ ALLOWED_STYLES = ['color', 'text-align', 'font-weigth', 'font-family', 'font-siz
 def new_post():
     cat_id = request.args.get('cat', 1, type=int)
     post = Post(title='', full='', publishDate=datetime.now(), lastUpdated=datetime.now(),
-                    category_id=1, published=False, imgMain='default.jpg', shortDesc='', id=0, owner_id=current_user.id)
+                    category_id=1, published=False, imgMain='default.jpg', shortDesc='', id=0, owner_id=current_user.id,
+                    title_translation_id=str(uuid.uuid4()), shortDesc_translation_id=str(uuid.uuid4()),
+                    full_translation_id=str(uuid.uuid4()))
     tagsString = ''
+    langs = Language.query.all()
+    title_translations = {}
+    desc_translations = {}
+    full_translations = {}
+    for i in langs:
+         title_translations[i.lang_code] = ""
+         desc_translations[i.lang_code] = ""
+         full_translations[i.lang_code] = ""
+    langs_json = {
+        "langs": 
+            [e.serialize() for e in langs]
+    }
     return render_template('post.html', categories=Category.query.all(), tags=Tag.query.all(), post=post, tagsString=tagsString,
-    owner_name=current_user.name, category=cat_id, dateAdd=post.publishDate.strftime("%Y-%m-%d %H:%M"),
-    dateUpdate=post.lastUpdated.strftime("%Y-%m-%d %H:%M"))
+        owner_name=current_user.name, category=cat_id, dateAdd=post.publishDate.strftime("%Y-%m-%d %H:%M"),
+        dateUpdate=post.lastUpdated.strftime("%Y-%m-%d %H:%M"), langs=langs, title_translations=title_translations,
+        desc_translations=desc_translations, full_translations=full_translations, langs_json=json.dumps(langs_json))
 
 @posts.route('/editpost/<id>')
 @login_required
@@ -38,9 +53,26 @@ def edit_post(id):
         tagsString = tagsString[:-2]
 
         user = User.query.filter_by(id=post.owner_id).first()
+        langs = Language.query.all()
+        title_translations = {}
+        desc_translations = {}
+        full_translations = {}
+        for i in langs:
+            title = Translation.query.filter_by(translation_id=post.title_translation_id, lang=i.lang_code).first()
+            desc = Translation.query.filter_by(translation_id=post.shortDesc_translation_id, lang=i.lang_code).first()
+            full = Translation.query.filter_by(translation_id=post.full_translation_id, lang=i.lang_code).first()
+            print(post.title_translation_id)
+            title_translations[i.lang_code] = title.text
+            desc_translations[i.lang_code] = desc.text
+            full_translations[i.lang_code] = full.text
+        langs_json = {
+            "langs": 
+                [e.serialize() for e in langs]
+        }
         return render_template('post.html', categories=Category.query.all(), tags=Tag.query.all(), post=post, tagsString=tagsString,
-        owner_name=user.name, dateAdd=post.publishDate.strftime("%Y-%m-%d %H:%M"),
-        dateUpdate=post.lastUpdated.strftime("%Y-%m-%d %H:%M"))
+            owner_name=user.name, dateAdd=post.publishDate.strftime("%Y-%m-%d %H:%M"),
+            dateUpdate=post.lastUpdated.strftime("%Y-%m-%d %H:%M"), langs=langs, title_translations=title_translations,
+            desc_translations=desc_translations, full_translations=full_translations, langs_json=json.dumps(langs_json))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** edit_post msg: ' + str(ex))
         return redirect(url_for('errors.unknownerror'))
@@ -52,6 +84,12 @@ def dpost(id):
         post = Post.query.filter_by(id=id).first()
         postname = post.title
         dposttags = PostTag.__table__.delete().where(PostTag.post_id == id)
+        del_title_translations = Translation.__table__.delete().where(Translation.translation_id == post.title_translation_id)
+        del_desc_translations = Translation.__table__.delete().where(Translation.translation_id == post.shortDesc_translation_id)
+        del_full_translations = Translation.__table__.delete().where(Translation.translation_id == post.full_translation_id)
+        db.session.execute(del_title_translations)
+        db.session.execute(del_desc_translations)
+        db.session.execute(del_full_translations)
         db.session.delete(post)
         db.session.execute(dposttags)
         db.session.commit()
@@ -74,6 +112,18 @@ def save_post(id):
         storageImage = request.form.get('storage_img')
         tags = request.form.get('tags').replace(' ,', ',').replace(', ',',')
 
+        title_translation_id = request.form.get('title_translation_id')
+        shortDesc_translation_id = request.form.get('shortDesc_translation_id')
+        full_translation_id = request.form.get('full_translation_id')
+        langs = Language.query.all()
+        title_translations = {}
+        full_translations = {}
+        shortDesc_translations = {}
+        for i in langs:
+            title_translations[i.lang_code] = request.form.get(f'title_{i.lang_code}')
+            clean_full = bleach.clean(request.form.get(f'editordata_{i.lang_code}'), tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, styles=ALLOWED_STYLES)
+            full_translations[i.lang_code] = clean_full
+            shortDesc_translations[i.lang_code] = request.form.get(f'editordata_{i.lang_code}')
         full = bleach.clean(full, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, styles=ALLOWED_STYLES)
 
         finalTags = create_final_tags(tags)
@@ -92,7 +142,8 @@ def save_post(id):
             published = True
 
         npost = Post(title=title, full=full, publishDate=datetime.now(), lastUpdated=datetime.now(),
-            category_id=category, published=published, imgMain='', shortDesc=shortDesc, owner_id=current_user.id)
+            category_id=category, published=published, imgMain='', shortDesc=shortDesc, owner_id=current_user.id,
+            title_translation_id=title_translation_id, shortDesc_translation_id=shortDesc_translation_id, full_translation_id=full_translation_id)
         imgName = storageImage
         if imgName == '':
             imgName = save_img(request.files)
@@ -108,6 +159,18 @@ def save_post(id):
                 postTag = PostTag(post_id=npost.id, tag_id=i.id)
                 db.session.add(postTag)
                 db.session.commit()
+
+            for i in langs:
+                title_trans = Translation(translation_id=title_translation_id, lang=i.lang_code, 
+                    text=title_translations[i.lang_code] if title_translations[i.lang_code] else title)
+                db.session.add(title_trans)
+                desc_trans = Translation(translation_id=shortDesc_translation_id, lang=i.lang_code, 
+                    text=shortDesc_translations[i.lang_code] if shortDesc_translations[i.lang_code] else shortDesc)
+                db.session.add(desc_trans)
+                full_trans = Translation(translation_id=full_translation_id, lang=i.lang_code, 
+                    text=full_translations[i.lang_code] if full_translations[i.lang_code] else full)
+                db.session.add(full_trans)
+            db.session.commit()
             flash('Post created!')
             flash('success')
             return redirect(url_for('posts.edit_post', id=npost.id))    
@@ -118,7 +181,7 @@ def save_post(id):
         if imgName != '' and imgName != opost.imgMain:
             npost.imgMain = imgName
 
-        update_post(opost, npost, finalTags)
+        update_post(opost, npost, finalTags, title_translations, shortDesc_translations, full_translations, langs)
         flash('Saved!')
         flash('success')
         return redirect(url_for('posts.edit_post', id=opost.id))
@@ -134,20 +197,23 @@ def save_post(id):
 def categories_post():
     try:
         cat_name = request.form.get('category_name')
+        langs = Language.query.all()
+        translations = {}
+        for i in langs:
+            translations[i.lang_code] = request.form.get(f'category_name_{i.lang_code}')
         duplicate_cats = Category.query.filter_by(category_name=cat_name).all()
         if duplicate_cats:
             flash(Markup('Category <strong>' + str(cat_name) + '</strong> already exist!'))
             flash('danger')
             return redirect(url_for('main.categories'))
 
-        cat = Category.query.filter_by(category_name=cat_name).first()
-        if cat:
-            flash('Category already exists.')
-            return redirect(url_for('main.categories'))
-
-        new_cat = Category(category_name=cat_name)
+        new_cat = Category(category_name=cat_name, translation_id=str(uuid.uuid4()))
 
         db.session.add(new_cat)
+        for i in langs:
+            trans = Translation(translation_id= new_cat.translation_id, lang=i.lang_code, 
+                text=translations[i.lang_code] if translations[i.lang_code] else new_cat.category_name)
+            db.session.add(trans)
         db.session.commit()
 
         flash(Markup('Category <strong>' + cat_name + '</strong> was succussfully added!'))
@@ -166,6 +232,8 @@ def dcat(id):
         posts = Post.query.filter_by(category_id=id).all()
         for i in posts:
             i.category_id = 1
+        del_translations = Translation.__table__.delete().where(Translation.translation_id == cat.translation_id)
+        db.session.execute(del_translations)
 
         db.session.delete(cat)
         db.session.commit()
@@ -183,8 +251,12 @@ def dcat(id):
 def ucat(id):
     try:
         new_name = request.form.get('category_name')
+        langs = Language.query.all()
+        translations = {}
+        for i in langs:
+            translations[i.lang_code] = request.form.get(f'category_name_{i.lang_code}')
         duplicate_cats = Category.query.filter_by(category_name=new_name).all()
-        if duplicate_cats:
+        if len(duplicate_cats) > 1:
             flash(Markup('Category <strong>' + str(new_name) + '</strong> already exist!'))
             flash('danger')
             return redirect(url_for('main.categories'))
@@ -192,6 +264,15 @@ def ucat(id):
         cat = Category.query.filter_by(id=id).first()
         old_name = cat.category_name
         cat.category_name = new_name
+        for i in langs:
+            trans = Translation.query.filter_by(lang=i.lang_code, translation_id=cat.translation_id).first()
+            if not trans:
+                trans = Translation(translation_id= cat.translation_id, lang=i.lang_code, 
+                    text=translations[i.lang_code] if translations[i.lang_code] else cat.category_name)
+                db.session.add(trans)
+            else: 
+                if trans.text != translations[i.lang_code]:
+                    trans.text = translations[i.lang_code]
         db.session.commit()
         flash(Markup('Category <strong>' + str(old_name) + '</strong> was renamed to '+
                     '<strong>' + new_name +'</strong>!'))
@@ -265,7 +346,7 @@ def create_final_tags(tags):
                 finalTags.append(tag)
     return finalTags
 
-def update_post(opost, npost, tags):
+def update_post(opost, npost, tags, title_translations, shortDesc_translations, full_translations, langs):
     posttags = PostTag.query.filter_by(post_id=opost.id).all()
     for i in tags:
         if not any(x.tag_id == i.id for x in posttags):
@@ -277,6 +358,22 @@ def update_post(opost, npost, tags):
         if not any(x.id == i.tag_id for x in tags):
             db.session.delete(i)
             db.session.commit()
+            
+    for i in langs:
+        orig_title = Translation.query.filter_by(translation_id=opost.title_translation_id, lang=i.lang_code).first()
+        new_title = title_translations[i.lang_code]
+        if orig_title.text != new_title:
+            orig_title.text = new_title
+
+        orig_desc = Translation.query.filter_by(translation_id=opost.shortDesc_translation_id, lang=i.lang_code).first()
+        new_desc = shortDesc_translations[i.lang_code]
+        if orig_desc.text != new_desc:
+            orig_desc.text = new_desc
+
+        orig_full = Translation.query.filter_by(translation_id=opost.full_translation_id, lang=i.lang_code).first()
+        new_full = full_translations[i.lang_code]
+        if orig_full.text != new_full:
+            orig_full.text = new_full
 
     opost.lastUpdated = datetime.now()
     if opost.title != npost.title:

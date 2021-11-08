@@ -14,8 +14,11 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category_id = db.Column(db.Integer)
     title = db.Column(db.String(250))
+    title_translation_id = db.Column(db.String(250))
     shortDesc = db.Column(db.String(250))
+    shortDesc_translation_id = db.Column(db.String(250))
     full = db.Column(db.String)
+    full_translation_id = db.Column(db.String)
     imgMain = db.Column(db.String(250))
     published = db.Column(db.Boolean)
     publishDate = db.Column(db.DateTime)
@@ -26,13 +29,13 @@ class Post(db.Model):
     def shorter_name(self):
         return text_shorter(self.title, 100)
 
-    def serialize_short(self):
+    def serialize_short(self, lang):
         tags = Tag.query.join(PostTag, Tag.id == PostTag.tag_id).filter_by(post_id=self.id).all()
         return {
             'id': self.id,
             'category_id': self.category_id,
-            'title': self.title,
-            'shortDesc': self.shortDesc,
+            'title': self.title if not lang else Translation.query.filter_by(lang=lang, translation_id=self.title_translation_id).first().text,
+            'shortDesc': self.shortDesc if not lang else Translation.query.filter_by(lang=lang, translation_id=self.shortDesc_translation_id).first().text,
             'img': self.imgMain,
             'publishDate': self.publishDate.strftime("%Y-%m-%d %H:%M"),
             'author': User.query.filter_by(id=self.owner_id).first().name,
@@ -40,15 +43,15 @@ class Post(db.Model):
 
         }
 
-    def serialize(self):
+    def serialize(self, lang):
         return {
             'id': self.id,
             'category_id': self.category_id,
-            'title': self.title,
-            'shortDesc': self.shortDesc,
+            'title': self.title if not lang else Translation.query.filter_by(lang=lang, translation_id=self.title_translation_id).first().text,
+            'shortDesc': self.shortDesc if not lang else Translation.query.filter_by(lang=lang, translation_id=self.shortDesc_translation_id).first().text,
             'img': self.imgMain,
             'lastUpdated': self.lastUpdated.strftime("%Y-%m-%d %H:%M"),
-            'full': self.full,
+            'full': self.full if not lang else Translation.query.filter_by(lang=lang, translation_id=self.full_translation_id).first().text,
             'publishDate': self.publishDate.strftime("%Y-%m-%d %H:%M"),
             'author': User.query.filter_by(id=self.owner_id).first().name
         }
@@ -56,13 +59,14 @@ class Post(db.Model):
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category_name = db.Column(db.String(250), unique=True)
+    translation_id = db.Column(db.String(250))
     @property
     def shorter_name(self):
         return text_shorter(self.category_name, 80)
-    def serialize(self):
+    def serialize(self, lang):
         return {
             'category_id': self.id,
-            'category_name': self.category_name
+            'category_name': self.category_name if not lang else Translation.query.filter_by(lang=lang, translation_id=self.translation_id).first().text 
         }
 
 class Tag(db.Model):
@@ -91,6 +95,27 @@ class Media(db.Model):
             'media_name': self.media_name,
             'original_extension': self.original_extension,
             'pure_name': self.pure_name
+        }
+
+class Translation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    translation_id = db.Column(db.String)
+    lang = db.Column(db.String)
+    text = db.Column(db.String)
+    def serialize(self):
+        return{
+            'text': self.text
+        }
+
+class Language(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    lang_code = db.Column(db.String)
+    lang_name = db.Column(db.String)
+
+    def serialize(self):
+        return{
+            "lang_name": self.lang_name,
+            "lang_code": self.lang_code,
         }
 
 def text_shorter(txt, length):

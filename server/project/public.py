@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy import text
-from .models import Post, Tag, PostTag, Category
+from .models import Language, Post, Tag, PostTag, Category
 
 public = Blueprint('public', __name__)
 
@@ -9,6 +9,10 @@ ROW_PER_PAGE = 10
 @public.route('/api/posts', methods=['GET'])
 def get_all_posts():
     try:
+        lang = request.args.get('lang', "", type=str)
+        lang_data = Language.query.filter_by(lang_code=lang).first()
+        if not lang_data:
+            lang = ""
         page = request.args.get('page', 1, type=int)
         row_per_page = request.args.get('rowsperpage', ROW_PER_PAGE, type=int)
 
@@ -17,7 +21,7 @@ def get_all_posts():
             'total_pages': posts.pages,
             'current_page': posts.page,
             'posts': 
-                [e.serialize_short() for e in posts.items]
+                [e.serialize_short(lang) for e in posts.items]
         }
     except Exception as ex:
         data = {
@@ -28,6 +32,10 @@ def get_all_posts():
 @public.route('/api/posts/<int:id>', methods=['GET'])
 def get_posts_by_category_id(id):
     try:
+        lang = request.args.get('lang', "", type=str)
+        lang_data = Language.query.filter_by(lang_code=lang).first()
+        if not lang_data:
+            lang = ""
         tag_ids = request.args.getlist('tag')
         page = request.args.get('page', 1, type=int)
         row_per_page = request.args.get('rowsperpage', ROW_PER_PAGE, type=int)
@@ -47,7 +55,7 @@ def get_posts_by_category_id(id):
             'total_pages': posts.pages,
             'current_page': posts.page,
             'posts': 
-                [e.serialize_short() for e in posts.items]
+                [e.serialize_short(lang) for e in posts.items]
         }
     except Exception as ex:
         data = {
@@ -58,8 +66,12 @@ def get_posts_by_category_id(id):
 @public.route('/api/post/<id>', methods=['GET'])
 def get_post_by_id(id):
     try:
+        lang = request.args.get('lang', "", type=str)
+        lang_data = Language.query.filter_by(lang_code=lang).first()
+        if not lang_data:
+            lang = ""
         post = Post.query.filter_by(id=id).first()
-        return jsonify(post.serialize())
+        return jsonify(post.serialize(lang))
     except Exception as ex:
         data = {
             'error': str(ex)
@@ -102,10 +114,14 @@ def get_tags_by_category_id(id):
 @public.route('/api/categories', methods=['GET'])
 def get_categories():
     try:
+        lang = request.args.get('lang', "", type=str)
+        lang_data = Language.query.filter_by(lang_code=lang).first()
+        if not lang_data:
+            lang = ""
         cats = Category.query.all()
         data = {
             'categories':
-                [e.serialize() for e in cats]
+                [e.serialize(lang) for e in cats]
         }
         
     except Exception as ex:

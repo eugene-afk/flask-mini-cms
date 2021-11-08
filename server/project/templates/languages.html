@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %} Flask Mini-CMS | Categories {% endblock %}
+{% block title %} Flask Mini-CMS | Languages {% endblock %}
 
 {% block content %}
     <div class="column is-8 is-offset-2">
-        <h3 class="title">Categories</h3>
+        <h3 class="title">Languages</h3>
         <div class="box">
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
@@ -14,9 +14,9 @@
                     </div>
                 {% endif %}
             {% endwith %}
-            
+
             <div class="mb-2">
-                <form action="/categories" method="get" autocomplete="off">
+                <form action="/languages" method="get" autocomplete="off">
                     <div class="field is-flex">
                         <p class="control has-icons-left" style="flex: 1 1 0%">
                             <input class="input" type="text" name="f" id="f" autofocus="true">
@@ -38,19 +38,20 @@
                     <thead>
                         <th><abbr title="Identifactor">ID</abbr></th>
                         <th><abbr title="Name">Name</abbr></th>
+                        <th><abbr title="Name">Code</abbr></th>
                         <th class="has-text-right"><abbr title="Actions">
-                        <button id="add_cat_btn" class="button is-primary is-small">Add</button>
+                        <button id="add_lang_btn" class="button is-primary is-small">Add</button>
                         </abbr></th>
                     </thead>
                     <tfoot>
                         <tr>
-                            <td colspan="3">
+                            <td colspan="4">
                                 <div class="buttons has-addons is-centered">
-                                    <a href="{{ url_for('main.categories', page=collection.prev_num) }}" class="button"
+                                    <a href="{{ url_for('languages.langs', page=collection.prev_num) }}" class="button"
                                     {% if collection.page == 1 %}disabled{% endif %}>
                                         Prev
                                     </a>
-                                    <a href="{{ url_for('main.categories', page=collection.next_num) }}" class="button"
+                                    <a href="{{ url_for('languages.langs', page=collection.next_num) }}" class="button"
                                     {% if collection.page == collection.pages or collection.pages == 0 %}disabled{% endif %}>
                                         Next
                                     </a>
@@ -58,38 +59,38 @@
                             </td>
                         </tr>
                     </tfoot>
-                    <div class="update_cat_form">
-                        
+                    <div class="update_lang_form">
+
                     </div>
 
-                    <form action="/addcategory" method="post" autocomplete="off">
+                    <form action="/addlanguage" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <div id="add_cat_form" class="field" style="display: none;">
+                        <div id="add_lang_form" class="field" style="display: none;">
                             <div class="control">
-                                <input id="category_name" class="input is-medium mb-2" type="text"
-                                        name="category_name"
-                                        placeholder="Type category name"
+                                <input id="language_name" class="input is-medium mb-2" type="text"
+                                        name="language_name"
+                                        placeholder="Type language name"
                                         autofocus="">
-                                {% for i in langs %}
-                                    <input id="category_name_{{i.lang_code}}" class="input is-medium mb-2" type="text"
-                                            name="category_name_{{i.lang_code}}"
-                                            placeholder="Type category name ({{i.lang_name}})">
-                                {% endfor %}
+                                <input id="language_code" class="input is-medium mb-2" type="text"
+                                        name="language_code"
+                                        placeholder="Type language code"
+                                        autofocus="">
                                 <button class="button is-block is-info is-small is-fullwidth">Save</button>
                             </div>
                         </div>
                     </form>
-                    
+
                     <tbody>
                         {% for i in collection.items %}
                             <tr>
                                 <td class="v-align-middle">{{ i.id }}</td>
-                                <td class="v-align-middle">{{ i.shorter_name }}</td>
-                                <td class="has-text-right v-align-middle" style="min-width: 6rem;">
-                                    <span id="{{ i.id }}_{{ i.category_name }}_{{ i.translation_id }}" class="pointer edit_cat_btn">
+                                <td class="v-align-middle">{{ i.lang_name }}</td>
+                                <td class="v-align-middle">{{ i.lang_code }}</td>
+                                <td class="has-text-right v-align-middle edit_lang_btn" style="min-width: 6rem;">
+                                    <span id="{{ i.id }}_{{ i.lang_name }}_{{ i.lang_code }}" class="pointer edit_lang_btn">
                                         <i data-eva="edit-outline" data-eva-fill="#36f" data-eva-animation="flip"></i>
                                     </span>
-                                    <a href="{{ url_for('posts.dcat', id=i.id) }}">
+                                    <a href="{{ url_for('languages.dlang', id=i.id) }}">
                                         <i data-eva="trash-outline" data-eva-fill="#f14668" data-eva-animation="flip"></i>
                                     </a>
                                 </td>
@@ -98,9 +99,8 @@
                     </tbody>
                 </table>
             </div>
-             
+
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="{{ url_for('static', filename='js/categories.js') }}" langs="{{langs_js}}" data-csrf="{{csrf_token()}}"></script>
+    <script src="{{ url_for('static', filename='js/languages.js') }}"></script>
 {% endblock %}

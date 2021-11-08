@@ -1,26 +1,12 @@
+var langs = JSON.parse(document.currentScript.getAttribute('langs'))
+
 $(document).ready(function() {
 
   $('#title').setCursorPosition($('#title').val().length);
-  $('#summernote').summernote({
-    disableResizeEditor: true,
-    height: 600,
-    placeholder: 'Start writing here...',
-    callbacks:{
-      onImageUpload: function(image){
-        uploadImage(image[0]);
-      }
-    },
-    toolbar:[
-      ['style', ['bold', 'italic', 'underline', 'clear']],
-      ['font style', ['fontname']],
-      ['fontsize', ['fontsize']],
-      ['color', ['color']],
-      ['para', ['style', 'ul', 'ol', 'paragraph']],
-      ['insert', ['picture', 'link', 'video']],
-      ['height', ['height']],
-      ['misc', ['codeview']]
-    ]
-  });
+  initSummernote("summernote")
+  for(var i = 0; i < langs.langs.length; ++i){
+    initSummernote(`summernote_${langs.langs[i].lang_code}`)
+  }
 
   $('#img_file').on('change', function(e){
     readURL(e.target);
@@ -101,6 +87,16 @@ $(document).ready(function() {
 
   $('#img_file_trigger').on('click', function(){
     $('#img_file').click();
+  })
+
+  $('#language_select').on('change', (e) => {
+    var lang = $(e.target).find(":selected").val()
+    $('.have-translation-input').each(function(){
+      $(this).hide()
+    })
+    $(`#title${lang !== 'en'?`_${lang}`:''}`).show()
+    $(`#float_textarea${lang !== 'en'?`_${lang}`:''}`).show()
+    $(`#full_summernote${lang !== 'en'?`_${lang}`:''}`).show()
   })
 
 });
@@ -229,3 +225,33 @@ function hideUnselect(){
     unselectButton.hide();
   }
 }
+
+function initSummernote(id){
+  $('#' + id).summernote({
+    disableResizeEditor: true,
+    height: 600,
+    placeholder: 'Start writing here...',
+    callbacks:{
+      onImageUpload: function(image){
+        uploadImage(image[0]);
+      }
+    },
+    toolbar:[
+      ['style', ['bold', 'italic', 'underline', 'clear']],
+      ['font style', ['fontname']],
+      ['fontsize', ['fontsize']],
+      ['color', ['color']],
+      ['para', ['style', 'ul', 'ol', 'paragraph']],
+      ['insert', ['picture', 'link', 'video']],
+      ['height', ['height']],
+      ['misc', ['codeview']]
+    ],
+  });
+  var el = $('#' + id).next().find('.note-editor')
+
+   $(el.prevObject[0]).attr('id', `full_${id}`)
+   $(el.prevObject[0]).addClass('have-translation-input')
+   if(id !== 'summernote'){
+    $(el.prevObject[0]).hide()
+   }
+} 

@@ -1,10 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, json, render_template, request, redirect, url_for
 from flask_login import login_required, current_user
 from . import db
-from .models import User, Category, Tag, Post, Media, text_shorter
+from .models import Language, Translation, User, Category, Tag, Post, Media, text_shorter
 from sqlalchemy import desc
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
+import uuid
 
 main = Blueprint('main', __name__)
 
@@ -86,7 +87,12 @@ def categories():
         else:
             categories = Category.query.paginate(page=page, per_page=ROW_PER_PAGE)
 
-        return render_template('categories.html', collection=categories, search_txt=search_txt)
+        langs = Language.query.all()
+        data = {
+            "langs": 
+                [e.serialize() for e in langs]
+        }
+        return render_template('categories.html', collection=categories, search_txt=search_txt, langs=langs, langs_js=json.dumps(data))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** categories msg: ' + str(ex))
         return redirect(url_for('errors.unknownerror'))
@@ -158,7 +164,7 @@ def init_post():
         db.session.add(suser)
         db.session.commit()
 
-        defaultCat = Category(category_name='Uncategorized')
+        defaultCat = Category(category_name='Uncategorized', translation_id=str(uuid.uuid4()))
         db.session.add(defaultCat)
         db.session.commit()
     except Exception as ex:
@@ -166,3 +172,17 @@ def init_post():
         return redirect(url_for('errors.unknownerror'))
 
     return redirect(url_for('auth.login'))
+
+@main.route('/get_translation')
+@login_required
+def get_translation():
+    try:
+        lang = request.args.get('lang')
+        id = request.args.get('id')
+        trans = Translation.query.filter_by(lang=lang, translation_id=id).first()
+        if not trans:
+            return json.jsonify("")        
+        return json.jsonify(trans.text)
+    except Exception as ex:
+        print('*** ' + str(datetime.now()) + ' *** get_translation msg: ' + str(ex))
+        return json.jsonify("") 

@@ -65,6 +65,9 @@ def create_app():
     from .public import public as public_blueprint
     app.register_blueprint(public_blueprint)
 
+    from .languages import languages as languages_blueprint
+    app.register_blueprint(languages_blueprint)
+
     with app.app_context(): 
         try:
             user = User.query.first()
