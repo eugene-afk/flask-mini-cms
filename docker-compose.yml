@@ -8,6 +8,6 @@ services:
     container_name: flask-mini-cms
     restart: unless-stopped
     volumes:
-      - ./server/project:/code/server/project
+      - ./server/project/db:/code/server/project/db
     ports:
       - 50550:5000

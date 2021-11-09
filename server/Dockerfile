@@ -4,9 +4,6 @@ RUN apk add --no-cache --virtual .tmp gcc libwebp-dev jpeg-dev zlib-dev musl-dev
 COPY requirements.txt requirements.txt
 COPY .env.prod .env.prod
 COPY wsgi.py wsgi.py
-# RUN python3 -m venv env
-# RUN source env/bin/activate
-# RUN set -a; source .env.prod; set +a
 RUN pip install -r requirements.txt
 RUN apk del .tmp
 RUN apk add libjpeg libwebp

@@ -59,9 +59,21 @@ def edit_post(id):
         full_translations = {}
         for i in langs:
             title = Translation.query.filter_by(translation_id=post.title_translation_id, lang=i.lang_code).first()
+            if not title:
+                title = Translation(translation_id=post.title_translation_id, lang=i.lang_code, text=post.title)
+                db.session.add(title)
+                db.session.commit()
             desc = Translation.query.filter_by(translation_id=post.shortDesc_translation_id, lang=i.lang_code).first()
+            if not desc:
+                desc = Translation(translation_id=post.shortDesc_translation_id, lang=i.lang_code, text=post.shortDesc)
+                db.session.add(desc)
+                db.session.commit()
             full = Translation.query.filter_by(translation_id=post.full_translation_id, lang=i.lang_code).first()
-            print(post.title_translation_id)
+            if not full:
+                full = Translation(translation_id=post.full_translation_id, lang=i.lang_code, text=post.full)
+                db.session.add(full)
+                db.session.commit()
+            
             title_translations[i.lang_code] = title.text
             desc_translations[i.lang_code] = desc.text
             full_translations[i.lang_code] = full.text

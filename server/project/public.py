@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-from sqlalchemy import text
 from .models import Language, Post, Tag, PostTag, Category
 
 public = Blueprint('public', __name__)
@@ -41,13 +40,12 @@ def get_posts_by_category_id(id):
         row_per_page = request.args.get('rowsperpage', ROW_PER_PAGE, type=int)
 
         if tag_ids:
-            sql_tags_filter = ""
+            sql_tags_filter = []
             for i in tag_ids:
-                sql_tags_filter += " or tag_id = " + str(i)
+                sql_tags_filter.append(i)
                 
-            sql_tags_filter = sql_tags_filter[4:]
             posts = Post.query.filter_by(published=True, category_id=id).join(PostTag,
-            Post.id == PostTag.post_id).filter(text(sql_tags_filter)).paginate(page=page, per_page=row_per_page)
+            Post.id == PostTag.post_id).filter(PostTag.tag_id.in_(sql_tags_filter)).paginate(page=page, per_page=row_per_page)
         else:
             posts = Post.query.filter_by(published=True, category_id=id).paginate(page=page, per_page=row_per_page)
 

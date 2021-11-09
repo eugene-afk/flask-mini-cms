@@ -12,7 +12,7 @@ $(document).ready(function() {
     readURL(e.target);
   })
 
-  $('#tag_input').on('change', function(e){
+  $('#selected_tag').on('change', function(e){
       var tags = $('#tags');
       var tag = e.target.value;
 

@@ -19,44 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         FocusTop();
     })
 
-    var editCategoryButtons = document.querySelectorAll('.edit_cat_btn');
-    if(editCategoryButtons != null){
-      for(var i = 0; i < editCategoryButtons.length; ++i){
-        editCategoryButtons[i].addEventListener('click', async (e) => {
-            if(window.getComputedStyle(addForm).display === 'block'){
-                HideAddForm(addForm, addCategoryButton);
-            }
-            var data = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.id.split('_');
-            var inputs = ''
-            for(var i = 0; i < langs.langs.length; ++i){
-                var translation = await getCategoryTranslation(data[2], langs.langs[i].lang_code)
-                inputs += `<input id="category_name_${langs.langs[i].lang_code}" class="input is-medium mb-2" type="text"
-                                name="category_name_${langs.langs[i].lang_code}"
-                                value="${translation}"
-                                placeholder="Type new category name (${langs.langs[i].lang_name})"
-                                autofocus="">`
-            }
-            var form_html= '<form action="/ucat/' + data[0] + '" method="post" autocomplete="false">'+
-                            '<div class="field">'+
-                                '<div class="control">'+
-                                    '<input id="category_name" class="input is-medium mb-2" type="text"'+
-                                            'name="category_name"'+
-                                            'value="'+ data[1] +'"'+
-                                            'placeholder="Type new category name"'+
-                                            'autofocus="">'+ inputs +
-                                        '<button class="button is-block is-info is-small is-fullwidth">Save</button>'+
-                                '</div>'+
-                            '</div>'+
-                        '</form>'+
-                        '<button id="cancel_edit_cat" class="button is-block is-danger is-small is-fullwidth mt-2">Cancel</button>'
-            var form_div = document.querySelector('.update_cat_form');
-            form_div.innerHTML = form_html;
-            
-            FocusTop();
-        })
-      }
-    }
-
     document.addEventListener('click', (e) => {
         if(e.target.id == 'cancel_edit_cat'){
             document.querySelector('.update_cat_form').innerHTML = "";       
@@ -103,3 +65,37 @@ async function getCategoryTranslation(id, lang){
     });
     return res
 }
+
+async function edit(e){
+  var addForm = document.querySelector('#add_cat_form');
+  if(window.getComputedStyle(addForm).display === 'block'){
+      HideAddForm(addForm, addCategoryButton);
+  }
+  var data = e.id.split('_');
+  var inputs = ''
+  for(var i = 0; i < langs.langs.length; ++i){
+      var translation = await getCategoryTranslation(data[2], langs.langs[i].lang_code)
+      inputs += `<input id="category_name_${langs.langs[i].lang_code}" class="input is-medium mb-2" type="text"
+                      name="category_name_${langs.langs[i].lang_code}"
+                      value="${translation}"
+                      placeholder="Type new category name (${langs.langs[i].lang_name})"
+                      autofocus="">`
+  }
+  var form_html= '<form action="/ucat/' + data[0] + '" method="post" autocomplete="false">'+
+                  '<div class="field">'+
+                      '<div class="control">'+
+                          '<input id="category_name" class="input is-medium mb-2" type="text"'+
+                                  'name="category_name"'+
+                                  'value="'+ data[1] +'"'+
+                                  'placeholder="Type new category name"'+
+                                  'autofocus="">'+ inputs +
+                              '<button class="button is-block is-info is-small is-fullwidth">Save</button>'+
+                      '</div>'+
+                  '</div>'+
+              '</form>'+
+              '<button id="cancel_edit_cat" class="button is-block is-danger is-small is-fullwidth mt-2">Cancel</button>'
+  var form_div = document.querySelector('.update_cat_form');
+  form_div.innerHTML = form_html;
+
+  FocusTop();
+} 

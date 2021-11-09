@@ -86,7 +86,7 @@
                                 <td class="v-align-middle">{{ i.id }}</td>
                                 <td class="v-align-middle">{{ i.shorter_name }}</td>
                                 <td class="has-text-right v-align-middle" style="min-width: 6rem;">
-                                    <span id="{{ i.id }}_{{ i.category_name }}_{{ i.translation_id }}" class="pointer edit_cat_btn">
+                                    <span id="{{ i.id }}_{{ i.category_name }}_{{ i.translation_id }}" class="pointer edit_cat_btn" onclick="edit(this)">
                                         <i data-eva="edit-outline" data-eva-fill="#36f" data-eva-animation="flip"></i>
                                     </span>
                                     <a href="{{ url_for('posts.dcat', id=i.id) }}">
