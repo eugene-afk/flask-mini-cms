@@ -9,9 +9,9 @@ import bleach, uuid
 
 posts = Blueprint('posts', __name__)
 
-ALLOWED_TAGS = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'br', 'img', 'pre', 'b', 'div', 'u', 'a', 'i', 'font']
+ALLOWED_TAGS = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'span', 'br', 'img', 'pre', 'b', 'div', 'u', 'a', 'i', 'font', 'ol', 'ul', 'li', 'blockquote']
 ALLOWED_ATTRS = {'*': ['style', 'src', 'class', 'target', 'href', 'align']}
-ALLOWED_STYLES = ['color', 'text-align', 'font-weigth', 'font-family', 'font-size', 'align']
+ALLOWED_STYLES = ['color', 'text-align', 'font-weigth', 'font-family', 'font-size', 'align', 'line-height']
 
 # Post
 @posts.route('/newpost')
