@@ -135,7 +135,7 @@ def save_post(id):
             title_translations[i.lang_code] = request.form.get(f'title_{i.lang_code}')
             clean_full = bleach.clean(request.form.get(f'editordata_{i.lang_code}'), tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, styles=ALLOWED_STYLES)
             full_translations[i.lang_code] = clean_full
-            shortDesc_translations[i.lang_code] = request.form.get(f'editordata_{i.lang_code}')
+            shortDesc_translations[i.lang_code] = request.form.get(f'short_desc_{i.lang_code}')
         full = bleach.clean(full, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, styles=ALLOWED_STYLES)
 
         finalTags = create_final_tags(tags)
