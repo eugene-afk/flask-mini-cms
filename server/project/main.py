@@ -1,6 +1,6 @@
 from flask import Blueprint, json, render_template, request, redirect, url_for
 from flask_login import login_required, current_user
-from . import db
+from . import db, logger
 from .models import Language, Translation, User, Category, Tag, Post, Media, text_shorter
 from sqlalchemy import desc
 from datetime import datetime, timedelta
@@ -51,6 +51,7 @@ def cpanel():
                             posts_last_week=posts_last_week, most_cat_row=most_cat_row, most_tag_row=most_tag_row)
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** cpanel msg: ' + str(ex))
+        logger.error(f"cpanel msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @main.route('/profile')
@@ -74,6 +75,7 @@ def users():
         return render_template('users.html', collection=users, search_txt=search_txt)
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** users msg: ' + str(ex))
+        logger.error(f"users msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @main.route('/categories')
@@ -95,6 +97,7 @@ def categories():
         return render_template('categories.html', collection=categories, search_txt=search_txt, langs=langs, langs_js=json.dumps(data))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** categories msg: ' + str(ex))
+        logger.error(f"categories msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @main.route('/tags')
@@ -111,6 +114,7 @@ def tags():
         return render_template('tags.html', collection=tags, search_txt=search_txt)
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** tags msg: ' + str(ex))
+        logger.error(f"tags msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @main.route('/posts')
@@ -127,6 +131,7 @@ def posts():
         return render_template('posts.html', collection = posts, search_txt=search_txt)
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** posts msg: ' + str(ex))
+        logger.error(f"posts msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @main.route('/images')
@@ -139,6 +144,7 @@ def images():
         return render_template('images.html', collection=imgs)
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** images msg: ' + str(ex))
+        logger.error(f"images msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @main.route('/init')
@@ -169,6 +175,7 @@ def init_post():
         db.session.commit()
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** init msg: ' + str(ex))
+        logger.error(f"init msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
     return redirect(url_for('auth.login'))
@@ -185,4 +192,5 @@ def get_translation():
         return json.jsonify(trans.text)
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** get_translation msg: ' + str(ex))
+        logger.error(f"get_translation msg: {ex}")
         return json.jsonify("") 

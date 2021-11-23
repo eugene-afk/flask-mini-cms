@@ -140,3 +140,5 @@ cython_debug/
 *.sqlite
 project/static/img/media/*.*
 !project/static/img/media/.gitkeep
+
+*.log

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, request, url_for, flash, Markup
 from flask_login import login_required
 from .models import User
-from . import db
+from . import db, logger
 from flask import Markup
 from werkzeug.security import generate_password_hash
 from datetime import datetime
@@ -26,6 +26,7 @@ def duser(id):
         return redirect(url_for('main.users'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** duser msg: ' + str(ex))
+        logger.error(f"duser msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @users.route('/adduser', methods=['POST'])
@@ -60,6 +61,7 @@ def adduser_post():
         return redirect(url_for('main.users')) 
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** adduser_post msg: ' + str(ex))
+        logger.error(f"adduser_post msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @users.route('/adduser')

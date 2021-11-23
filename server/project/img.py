@@ -1,10 +1,8 @@
-import os
-import uuid
-import pathlib
+import os, uuid, pathlib
 from flask import Blueprint, redirect, request, url_for, flash, Markup, jsonify
 from flask_login import login_required
 from os.path import join, dirname, realpath
-from . import db, csrf
+from . import db, logger
 from .models import Media, Post
 from datetime import datetime
 from PIL import Image
@@ -37,6 +35,7 @@ def dimg(id):
         return redirect(url_for('main.images'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** dimg msg: ' + str(ex))
+        logger.error(f"dimg msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @img.route('/saveimg', methods=['POST'])
@@ -61,6 +60,7 @@ def save_img_postf():
         return redirect(url_for('main.images'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** save_img_postf msg: ' + str(ex))
+        logger.error(f"save_img_postf msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 
@@ -114,6 +114,7 @@ def save_img(files):
                 image.save(path.replace(extension, '.webp'), 'webp')
             except Exception as ex:
                 print('*** ' + str(datetime.now()) + ' *** save_img msg: ' + str(ex))
+                logger.error(f"save_img msg: {ex}")
                 return newImageName
 
         return newImageName_converted

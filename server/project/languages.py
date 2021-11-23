@@ -1,11 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, Markup
-from flask_login import login_required, current_user
-from . import db, csrf
-from .models import Language, Translation, User, Category, Tag, Post, Media, text_shorter
-from sqlalchemy import desc
-from datetime import datetime, timedelta
-from werkzeug.security import generate_password_hash
-import uuid
+from flask_login import login_required
+from . import db, csrf, logger
+from .models import Language, Translation
+from datetime import datetime
 
 languages = Blueprint('languages', __name__)
 
@@ -26,6 +23,7 @@ def langs():
         return render_template('languages.html', collection=langs, search_txt=search_txt)
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** langs msg: ' + str(ex))
+        logger.error(f"langs msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @languages.route('/addlanguage', methods=['POST'])
@@ -51,6 +49,7 @@ def language_post():
         return redirect(url_for('languages.langs')) 
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** language_post msg: ' + str(ex))
+        logger.error(f"language_post msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @languages.route('/dlang/<id>', methods=['GET', 'POST'])
@@ -71,6 +70,7 @@ def dlang(id):
         return redirect(url_for('languages.langs'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** dlang msg: ' + str(ex))
+        logger.error(f"dlang msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @languages.route('/ulang/<id>', methods=['GET', 'POST'])
@@ -99,4 +99,5 @@ def ulang(id):
         return redirect(url_for('languages.langs'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** ulang msg: ' + str(ex))
+        logger.error(f"ulang msg: {ex}")
         return redirect(url_for('errors.unknownerror'))

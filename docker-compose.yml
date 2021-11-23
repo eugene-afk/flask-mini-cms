@@ -6,8 +6,14 @@ services:
       dockerfile: Dockerfile
       context: ./server
     container_name: flask-mini-cms
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
     restart: unless-stopped
     volumes:
-      - ./server/project/db:/code/server/project/db
+      - ./db:/code/server/project/db
+      - ./logs:/code/server/logs
     ports:
       - 50550:5000

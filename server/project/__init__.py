@@ -1,15 +1,25 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from werkzeug.security import generate_password_hash
 from flask_cors import CORS
 from flask_wtf import CSRFProtect
 from os.path import join, dirname, realpath
-import os
 from datetime import timedelta
 from yaml import load, Loader
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from logging.handlers import RotatingFileHandler
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
+formatter = logging.Formatter('%(asctime)s:%(name)s:%(message)s')
+file_handler = RotatingFileHandler('logs/flask-mini-cms.log', maxBytes=1000000, backupCount=5)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+
+#temp
+logger.error("Inited")
 
 with open(join(dirname(realpath(__file__)), 'config.yaml')) as conf:
     config = load(conf, Loader=Loader)

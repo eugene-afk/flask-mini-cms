@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from .models import User
-from . import db
+from . import db, logger
 from datetime import datetime
 
 auth = Blueprint('auth', __name__)
@@ -18,9 +18,8 @@ def login():
         name = request.form.get('name')
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
-
+        test = 1 / 0
         user = User.query.filter_by(name=name).first()
-
         if not user or not check_password_hash(user.password, password):
             flash('Please check your credentials and try again.')
             flash('danger')
@@ -31,6 +30,7 @@ def login():
         return redirect(next or url_for('main.users'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** login_post msg: ' + str(ex))
+        logger.error(f"*** login_post msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @auth.route('/logout')
@@ -72,4 +72,5 @@ def change_password_post():
         return redirect(url_for('auth.login'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** change_password_post msg: ' + str(ex))
+        logger.error(f"*** change_password_post: {ex}")
         return redirect(url_for('errors.unknownerror'))

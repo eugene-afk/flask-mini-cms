@@ -1,6 +1,6 @@
 from flask import Blueprint, json, render_template, redirect, request, url_for, flash, Markup
 from flask_login import login_required, current_user
-from . import db, csrf
+from . import db, csrf, logger
 from .models import Language, Translation, User, Post, Category, Tag, PostTag
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -87,6 +87,7 @@ def edit_post(id):
             desc_translations=desc_translations, full_translations=full_translations, langs_json=json.dumps(langs_json))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** edit_post msg: ' + str(ex))
+        logger.error(f"edit_post msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @posts.route('/dpost/<id>', methods=['GET','POST'])
@@ -110,6 +111,7 @@ def dpost(id):
         return redirect(url_for('main.posts'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** dpost msg: ' + str(ex))
+        logger.error(f"dpost msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @posts.route('/savepost/<id>', methods=['POST'])
@@ -199,6 +201,7 @@ def save_post(id):
         return redirect(url_for('posts.edit_post', id=opost.id))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** save_post msg: ' + str(ex))
+        logger.error(f"save_post msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 # End Post
@@ -233,6 +236,7 @@ def categories_post():
         return redirect(url_for('main.categories')) 
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** categories_post msg: ' + str(ex))
+        logger.error(f"categories_post msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @posts.route('/dcat/<id>', methods=['GET', 'POST'])
@@ -255,6 +259,7 @@ def dcat(id):
         return redirect(url_for('main.categories'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** dcat msg: ' + str(ex))
+        logger.error(f"dcat msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @posts.route('/ucat/<id>', methods=['GET', 'POST'])
@@ -292,6 +297,7 @@ def ucat(id):
         return redirect(url_for('main.categories'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** ucat msg: ' + str(ex))
+        logger.error(f"ucat msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 # End Categories
@@ -317,6 +323,7 @@ def dtag(id):
         return redirect(url_for('main.tags'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** dtag msg: ' + str(ex))
+        logger.error(f"dtag msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 @posts.route('/utag/<id>', methods=['GET', 'POST'])
@@ -335,6 +342,7 @@ def utag(id):
         return redirect(url_for('main.tags'))
     except Exception as ex:
         print('*** ' + str(datetime.now()) + ' *** utag msg: ' + str(ex))
+        logger.error(f"utag msg: {ex}")
         return redirect(url_for('errors.unknownerror'))
 
 # End Tags
