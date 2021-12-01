@@ -18,7 +18,6 @@ def login():
         name = request.form.get('name')
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
-        test = 1 / 0
         user = User.query.filter_by(name=name).first()
         if not user or not check_password_hash(user.password, password):
             flash('Please check your credentials and try again.')

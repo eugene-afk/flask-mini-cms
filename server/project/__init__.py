@@ -18,9 +18,6 @@ file_handler = RotatingFileHandler('logs/flask-mini-cms.log', maxBytes=1000000, 
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-#temp
-logger.error("Inited")
-
 with open(join(dirname(realpath(__file__)), 'config.yaml')) as conf:
     config = load(conf, Loader=Loader)
 
