@@ -10,4 +10,4 @@ greenlet==0.4.17
 gunicorn
 Pillow==8.2.0
 pyyaml
-Flask-Limiter
+Flask-Limiter==1.4
