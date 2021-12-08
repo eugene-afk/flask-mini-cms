@@ -15,5 +15,6 @@ services:
     volumes:
       - ./db:/code/server/project/db
       - ./logs:/code/server/logs
+      - ./media:/code/server/project/static/img/media
     ports:
       - 50550:5000

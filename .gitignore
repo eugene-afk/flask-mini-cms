@@ -2,3 +2,5 @@ logs/*.*
 !logs/.gitkeep
 db/*.*
 !db/.gitkeep
+media/*.*
+!media/.gitkeep
