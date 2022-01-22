@@ -68,7 +68,7 @@ def get_post_by_id(id):
         lang_data = Language.query.filter_by(lang_code=lang).first()
         if not lang_data:
             lang = ""
-        post = Post.query.filter_by(id=id).first()
+        post = Post.query.filter_by(id=id, published=True).first()
         return jsonify(post.serialize(lang))
     except Exception as ex:
         data = {
