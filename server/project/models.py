@@ -29,9 +29,9 @@ class Post(db.Model):
     def shorter_name(self):
         return text_shorter(self.title, 100)
 
-    def serialize_short(self, lang):
+    def serialize(self, lang, is_full = False):
         tags = Tag.query.join(PostTag, Tag.id == PostTag.tag_id).filter_by(post_id=self.id).all()
-        return {
+        dic = {
             'id': self.id,
             'category_id': self.category_id,
             'title': self.title if not lang else Translation.query.filter_by(lang=lang, translation_id=self.title_translation_id).first().text,
@@ -40,21 +40,11 @@ class Post(db.Model):
             'publishDate': self.publishDate.strftime("%Y-%m-%d %H:%M"),
             'author': User.query.filter_by(id=self.owner_id).first().name,
             'tags': [e.serialize() for e in tags]
-
         }
-
-    def serialize(self, lang):
-        return {
-            'id': self.id,
-            'category_id': self.category_id,
-            'title': self.title if not lang else Translation.query.filter_by(lang=lang, translation_id=self.title_translation_id).first().text,
-            'shortDesc': self.shortDesc if not lang else Translation.query.filter_by(lang=lang, translation_id=self.shortDesc_translation_id).first().text,
-            'img': self.imgMain,
-            'lastUpdated': self.lastUpdated.strftime("%Y-%m-%d %H:%M"),
-            'full': self.full if not lang else Translation.query.filter_by(lang=lang, translation_id=self.full_translation_id).first().text,
-            'publishDate': self.publishDate.strftime("%Y-%m-%d %H:%M"),
-            'author': User.query.filter_by(id=self.owner_id).first().name
-        }
+        if is_full:
+            dic["lastUpdated"] = self.lastUpdated.strftime("%Y-%m-%d %H:%M")
+            dic["full"] = self.full if not lang else Translation.query.filter_by(lang=lang, translation_id=self.full_translation_id).first().text
+        return dic
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)

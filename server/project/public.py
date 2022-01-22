@@ -20,7 +20,7 @@ def get_all_posts():
             'total_pages': posts.pages,
             'current_page': posts.page,
             'posts': 
-                [e.serialize_short(lang) for e in posts.items]
+                [e.serialize(lang) for e in posts.items]
         }
     except Exception as ex:
         data = {
@@ -53,7 +53,7 @@ def get_posts_by_category_id(id):
             'total_pages': posts.pages,
             'current_page': posts.page,
             'posts': 
-                [e.serialize_short(lang) for e in posts.items]
+                [e.serialize(lang) for e in posts.items]
         }
     except Exception as ex:
         data = {
@@ -69,7 +69,7 @@ def get_post_by_id(id):
         if not lang_data:
             lang = ""
         post = Post.query.filter_by(id=id, published=True).first()
-        return jsonify(post.serialize(lang))
+        return jsonify(post.serialize(lang, True))
     except Exception as ex:
         data = {
             'error': str(ex)
