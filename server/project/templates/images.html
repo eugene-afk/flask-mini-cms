@@ -28,11 +28,11 @@
                         <tr>
                             <td colspan="3">
                                 <div class="buttons has-addons is-centered">
-                                    <a href="{{ url_for('main.categories', page=collection.prev_num) }}" class="button"
+                                    <a href="{{ url_for('main.images', page=collection.prev_num) }}" class="button"
                                     {% if collection.page == 1 %}disabled{% endif %}>
                                         Prev
                                     </a>
-                                    <a href="{{ url_for('main.categories', page=collection.next_num) }}" class="button"
+                                    <a href="{{ url_for('main.images', page=collection.next_num) }}" class="button"
                                     {% if collection.page == collection.pages or collection.pages == 0 %}disabled{% endif %}>
                                         Next
                                     </a>
